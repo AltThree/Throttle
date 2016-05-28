@@ -112,7 +112,7 @@ class ThrottlingMiddleware
     {
         $remaining = $limit - $this->limiter->attempts($key) + 1;
 
-        $headers ['X-RateLimit-Limit' => $limit, 'X-RateLimit-Remaining' => $remaining];
+        $headers = ['X-RateLimit-Limit' => $limit, 'X-RateLimit-Remaining' => $remaining];
 
         return array_merge($headers, $merge);
     }
