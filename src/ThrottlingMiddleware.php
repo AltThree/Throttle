@@ -61,13 +61,13 @@ class ThrottlingMiddleware
      *
      * @return mixed
      */
-    public function handle(Request $request, Closure $next, $max = 60, $decay = 1)
+    public function handle(Request $request, Closure $next, $max = 60, $decay = 1, $global = false)
     {
         if ($this->shouldPassThrough($request)) {
             return $next($request);
         }
 
-        $key = $request->fingerprint();
+        $key = $global ? sha1($request->ip()) : $request->fingerprint();
 
         if ($this->limiter->tooManyAttempts($key, $limit, $decay)) {
             throw $this->buildException($key, $limit);
