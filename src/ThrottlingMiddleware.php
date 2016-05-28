@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace AltThree\Throttle\Http\Middleware;
+namespace AltThree\Throttle;
 
 use Closure;
 use Illuminate\Cache\RateLimiter;
