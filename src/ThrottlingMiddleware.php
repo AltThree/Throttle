@@ -15,6 +15,7 @@ use Closure;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Http\Request;
 use ReflectionClass;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 /**
@@ -104,7 +105,7 @@ class ThrottlingMiddleware
         if (method_exists($exception, 'setHeaders')) {
             $exception->setHeaders($headers);
         } else {
-            $property = (new ReflectionClass($exception))->getProperty('headers');
+            $property = (new ReflectionClass(HttpException::class))->getProperty('headers');
             $property->setAccessible(true);
             $property->setValue($exception, $headers);
         }
