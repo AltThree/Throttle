@@ -97,9 +97,11 @@ class ThrottlingMiddleware
      */
     protected function buildException($key, $limit, $headers)
     {
-        $exception = new TooManyRequestsHttpException($this->limiter->availableIn($key), 'Rate limit exceeded.');
+        $after = $this->limiter->availableIn($key);
 
-        $headers = $this->getHeaders($key, $limit, $headers, $exception->getHeaders());
+        $exception = new TooManyRequestsHttpException($after, 'Rate limit exceeded.');
+
+        $headers = $this->getHeaders($key, $limit, $headers, $after, $exception->getHeaders());
 
         // this was new in symfony 3.1
         if (method_exists($exception, 'setHeaders')) {
@@ -116,16 +118,17 @@ class ThrottlingMiddleware
     /**
      * Get the limit header information.
      *
-     * @param string $key
-     * @param int    $limit
-     * @param bool   $add
-     * @param array  $merge
+     * @param string   $key
+     * @param int      $limit
+     * @param bool     $add
+     * @param int|null $after
+     * @param array    $merge
      *
      * @return array
      */
-    protected function getHeaders($key, $limit, $add = true, array $merge = [])
+    protected function getHeaders($key, $limit, $add = true, $after = null, array $merge = [])
     {
-        $remaining = $limit - $this->limiter->attempts($key) + 1;
+        $remaining = $after ? 0 : $this->limiter->retriesLeft($key, $maxAttempts);
 
         $headers = $add ? ['X-RateLimit-Limit' => $limit, 'X-RateLimit-Remaining' => $remaining] : [];
 
