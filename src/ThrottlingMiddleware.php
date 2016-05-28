@@ -54,7 +54,7 @@ class ThrottlingMiddleware
      *
      * @param \Illuminate\Http\Request $request
      * @param \Closure                 $next
-     * @param int                      $max
+     * @param int                      $limit
      * @param int                      $decay
      * @param bool                     $global
      * @param bool                     $headers
@@ -63,7 +63,7 @@ class ThrottlingMiddleware
      *
      * @return mixed
      */
-    public function handle(Request $request, Closure $next, $max = 60, $decay = 1, $global = false, $headers = true)
+    public function handle(Request $request, Closure $next, $limit = 60, $decay = 1, $global = false, $headers = true)
     {
         if ($this->shouldPassThrough($request)) {
             return $next($request);
