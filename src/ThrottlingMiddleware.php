@@ -14,6 +14,7 @@ namespace AltThree\Throttle;
 use Closure;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Http\Request;
+use ReflectionClass;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 /**
@@ -97,7 +98,16 @@ class ThrottlingMiddleware
     {
         $exception = new TooManyRequestsHttpException($this->limiter->availableIn($key), 'Rate limit exceeded.');
 
-        $exception->setHeaders($this->getHeaders($key, $limit, $headers, $exception->getHeaders()));
+        $headers = $this->getHeaders($key, $limit, $headers, $exception->getHeaders());
+
+        // this was new in symfony 3.1
+        if (method_exists($exception, 'setHeaders')) {
+            $exception->setHeaders($headers);
+        } else {
+            $property = (new ReflectionClass($exception))->getProperty('headers');
+            $property->setAccessible(true);
+            $property->setValue($exception, $headers);
+        }
 
         return $exception;
     }
