@@ -56,12 +56,14 @@ class ThrottlingMiddleware
      * @param \Closure                 $next
      * @param int                      $max
      * @param int                      $decay
+     * @param bool                     $global
+     * @param bool                     $headers
      *
      * @throws \Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException
      *
      * @return mixed
      */
-    public function handle(Request $request, Closure $next, $max = 60, $decay = 1, $global = false)
+    public function handle(Request $request, Closure $next, $max = 60, $decay = 1, $global = false, $headers = true)
     {
         if ($this->shouldPassThrough($request)) {
             return $next($request);
@@ -70,14 +72,14 @@ class ThrottlingMiddleware
         $key = $global ? sha1($request->ip()) : $request->fingerprint();
 
         if ($this->limiter->tooManyAttempts($key, $limit, $decay)) {
-            throw $this->buildException($key, $limit);
+            throw $this->buildException($key, $limit, $headers);
         }
 
         $this->limiter->hit($key, $decay);
 
         $response = $next($request);
 
-        $response->headers->add($this->getHeaders($key, $limit));
+        $response->headers->add($this->getHeaders($key, $limit, $headers));
 
         return $response;
     }
@@ -87,14 +89,15 @@ class ThrottlingMiddleware
      *
      * @param string $key
      * @param int    $limit
+     * @param bool   $headers
      *
      * @return \Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException
      */
-    protected function buildException($key, $limit)
+    protected function buildException($key, $limit, $headers)
     {
         $exception = new TooManyRequestsHttpException($this->limiter->availableIn($key), 'Rate limit exceeded.');
 
-        $exception->setHeaders($this->getHeaders($key, $limit, $exception->getHeaders()));
+        $exception->setHeaders($this->getHeaders($key, $limit, $headers, $exception->getHeaders()));
 
         return $exception;
     }
@@ -104,15 +107,16 @@ class ThrottlingMiddleware
      *
      * @param string $key
      * @param int    $limit
+     * @param bool   $add
      * @param array  $merge
      *
      * @return array
      */
-    protected function getHeaders($key, $limit, array $merge = [])
+    protected function getHeaders($key, $limit, $add = true, array $merge = [])
     {
         $remaining = $limit - $this->limiter->attempts($key) + 1;
 
-        $headers = ['X-RateLimit-Limit' => $limit, 'X-RateLimit-Remaining' => $remaining];
+        $headers = $add ? ['X-RateLimit-Limit' => $limit, 'X-RateLimit-Remaining' => $remaining] : [];
 
         return array_merge($headers, $merge);
     }
