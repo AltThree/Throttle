@@ -128,7 +128,7 @@ class ThrottlingMiddleware
      */
     protected function getHeaders($key, $limit, $add = true, $after = null, array $merge = [])
     {
-        $remaining = $after ? 0 : $this->limiter->retriesLeft($key, $limit);
+        $remaining = $after === null ? $this->limiter->retriesLeft($key, $limit) : 0;
 
         $headers = $add ? ['X-RateLimit-Limit' => $limit, 'X-RateLimit-Remaining' => $remaining] : [];
 
