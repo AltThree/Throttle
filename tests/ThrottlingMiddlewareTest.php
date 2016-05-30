@@ -13,7 +13,6 @@ namespace AltThree\Tests\Throttle;
 
 use AltThree\Throttle\ThrottlingMiddleware;
 use GrahamCampbell\TestBench\AbstractPackageTestCase;
-use Illuminate\Support\Facades\Route;
 
 /**
  * This is the throttling middleware test class.
@@ -27,7 +26,7 @@ class ThrottlingMiddlewareTest extends AbstractPackageTestCase
      */
     public function setUpDummyRoute()
     {
-        Route::get('/dummy', ['middleware' => ThrottlingMiddleware::class, function () {
+        $this->app->router->get('/dummy', ['middleware' => ThrottlingMiddleware::class, function () {
             return 'success';
         }]);
     }
@@ -41,12 +40,13 @@ class ThrottlingMiddlewareTest extends AbstractPackageTestCase
     {
         for ($i = 1; $i <= 60; $i++) {
             $response = $this->call('GET', '/dummy');
-            $this->assertEquals(200, $response->status());
+            $this->assertSame(200, $response->status());
         }
     }
 
     /**
      * @expectedException \Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException
+     * @expectedExceptionMessage Rate limit exceeded.
      */
     public function testTooManyRequestsHttpException()
     {
