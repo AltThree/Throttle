@@ -23,17 +23,10 @@ use Illuminate\Support\Facades\Route;
 class ThrottlingMiddlewareTest extends AbstractPackageTestCase
 {
     /**
-     * Middleware to test.
-     *
-     * @var ThrottlingMiddleware
+     * @before
      */
-    protected $middleware;
-
-    public function setUp()
+    public function setUpDummyRoute()
     {
-        parent::setUp();
-
-        // Set up a fake route.
         Route::get('/dummy', ['middleware' => ThrottlingMiddleware::class, function () {
             return 'success';
         }]);
@@ -46,8 +39,10 @@ class ThrottlingMiddlewareTest extends AbstractPackageTestCase
 
     public function testHandleSuccess()
     {
-        $response = $this->call('GET', '/dummy');
-        $this->assertEquals(200, $response->status());
+        for ($i = 1; $i <= 60; $i++) {
+            $response = $this->call('GET', '/dummy');
+            $this->assertEquals(200, $response->status());
+        }
     }
 
     /**
