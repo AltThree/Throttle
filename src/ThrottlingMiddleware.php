@@ -57,7 +57,7 @@ class ThrottlingMiddleware
      * @param \Illuminate\Http\Request $request
      * @param \Closure                 $next
      * @param int                      $limit
-     * @param int                      $decay
+     * @param float|int                $decay
      * @param bool                     $global
      * @param bool                     $headers
      *
