@@ -11,8 +11,10 @@
 
 namespace AltThree\Tests\Throttle;
 
+use AltThree\Throttle\ThrottlingException;
 use AltThree\Throttle\ThrottlingMiddleware;
 use GrahamCampbell\TestBench\AbstractPackageTestCase;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 /**
  * This is the throttling middleware test class.
@@ -47,13 +49,22 @@ class ThrottlingMiddlewareTest extends AbstractPackageTestCase
     }
 
     /**
-     * @expectedException \Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException
+     * @expectedException \AltThree\Throttle\ThrottlingException
      * @expectedExceptionMessage Rate limit exceeded.
      */
     public function testTooManyRequestsHttpException()
     {
-        for ($i = 1; $i <= 61; $i++) {
-            $this->call('GET', '/dummy');
+        try {
+            for ($i = 1; $i <= 61; $i++) {
+                $this->call('GET', '/dummy');
+            }
+        } catch (ThrottlingException $e) {
+            $this->assertInstanceOf(TooManyRequestsHttpException::class, $e);
+            $this->assertInstanceOf(ThrottlingException::class, $e);
+
+            throw $e;
+        } catch (TooManyRequestsHttpException $e) {
+            $this->assertFalse(true); // we should never get here
         }
     }
 }
