@@ -56,7 +56,12 @@ class ThrottlingMiddlewareTest extends AbstractPackageTestCase
     {
         try {
             for ($i = 1; $i <= 61; $i++) {
-                $this->call('GET', '/dummy');
+                $response = $this->call('GET', '/dummy');
+                if ($ex = $response->exception) {
+                    throw $ex;
+                } else {
+                    $this->assertSame(200, $response->status());
+                }
             }
         } catch (ThrottlingException $e) {
             $this->assertInstanceOf(TooManyRequestsHttpException::class, $e);
