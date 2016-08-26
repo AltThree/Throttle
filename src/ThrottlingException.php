@@ -33,7 +33,7 @@ class ThrottlingException extends TooManyRequestsHttpException
     {
         // this was new in symfony 3.1
         if (method_exists(get_parent_class($this), 'setHeaders')) {
-            return $this->setHeaders($headers);
+            return parent::setHeaders($headers);
         }
 
         $property = (new ReflectionClass(HttpException::class))->getProperty('headers');
