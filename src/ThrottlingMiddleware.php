@@ -92,7 +92,7 @@ class ThrottlingMiddleware
      *
      * @return \AltThree\Throttle\ThrottlingException
      */
-    protected function buildException($key, $limit, $headers)
+    protected function buildException(string $key, int $limit, bool $headers)
     {
         $after = $this->limiter->availableIn($key);
 
@@ -116,7 +116,7 @@ class ThrottlingMiddleware
      *
      * @return array
      */
-    protected function getHeaders($key, $limit, $add = true, $after = null, array $merge = [])
+    protected function getHeaders(string $key, int $limit, bool $add = true, int $after = null, array $merge = [])
     {
         $remaining = $after === null ? $this->limiter->retriesLeft($key, $limit) : 0;
 
