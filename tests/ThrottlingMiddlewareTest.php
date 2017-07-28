@@ -23,12 +23,11 @@ use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
  */
 class ThrottlingMiddlewareTest extends AbstractPackageTestCase
 {
-    /**
-     * @before
-     */
-    public function setUpDummyRoute()
+    protected function getEnvironmentSetUp($app)
     {
-        $this->app->router->get('/dummy', ['middleware' => ThrottlingMiddleware::class, function () {
+        parent::getEnvironmentSetUp($app);
+
+        $app->router->get('/dummy', ['middleware' => ThrottlingMiddleware::class, function () {
             return 'success';
         }]);
     }
