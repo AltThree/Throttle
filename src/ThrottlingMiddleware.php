@@ -55,8 +55,34 @@ class ThrottlingMiddleware
      *
      * @param \Illuminate\Http\Request $request
      * @param \Closure                 $next
+     * @param int|string               $limit
+     * @param int|float|string         $decay
+     * @param bool|string              $global
+     * @param bool|string              $headers
+     *
+     * @throws \AltThree\Throttle\ThrottlingException
+     *
+     * @return mixed
+     */
+    public function handle(Request $request, Closure $next, $limit = 60, $decay = 1, $global = false, $headers = true)
+    {
+        return $this->safeHandle(
+            $request,
+            $next,
+            TypeUtil::covnertNumeric($limit),
+            TypeUtil::covnertNumeric($decay),
+            TypeUtil::convertBoolean($global),
+            TypeUtil::convertBoolean($headers)
+        );
+    }
+
+    /**
+     * Handle an incoming request, with correct types.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \Closure                 $next
      * @param int                      $limit
-     * @param float|int                $decay
+     * @param int|float                $decay
      * @param bool                     $global
      * @param bool                     $headers
      *
@@ -64,7 +90,7 @@ class ThrottlingMiddleware
      *
      * @return mixed
      */
-    public function handle(Request $request, Closure $next, $limit = 60, $decay = 1, $global = false, $headers = true)
+    protected function safeHandle(Request $request, Closure $next, int $limit, $decay, bool $global, bool $headers)
     {
         if ($this->shouldPassThrough($request)) {
             return $next($request);
