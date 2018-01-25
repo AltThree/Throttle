@@ -29,7 +29,7 @@ class TypeUtil
      */
     public static function convertNumeric($v)
     {
-        return $v + 0;
+        return $v === '' ? 0 : $v + 0;
     }
 
     /**

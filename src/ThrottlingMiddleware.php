@@ -69,8 +69,8 @@ class ThrottlingMiddleware
         return $this->safeHandle(
             $request,
             $next,
-            TypeUtil::covnertNumeric($limit),
-            TypeUtil::covnertNumeric($decay),
+            TypeUtil::convertNumeric($limit),
+            TypeUtil::convertNumeric($decay),
             TypeUtil::convertBoolean($global),
             TypeUtil::convertBoolean($headers)
         );
