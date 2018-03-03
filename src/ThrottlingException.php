@@ -24,22 +24,5 @@ use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
  */
 class ThrottlingException extends TooManyRequestsHttpException
 {
-    /**
-     * Set response headers.
-     *
-     * @param array $headers
-     *
-     * @return void
-     */
-    public function setHeaders(array $headers)
-    {
-        // this was new in symfony 3.1
-        if (method_exists(get_parent_class($this), 'setHeaders')) {
-            return parent::setHeaders($headers);
-        }
-
-        $property = (new ReflectionClass(HttpException::class))->getProperty('headers');
-        $property->setAccessible(true);
-        $property->setValue($this, $headers);
-    }
+    //
 }
