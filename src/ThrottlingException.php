@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace AltThree\Throttle;
 
-use ReflectionClass;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 /**
